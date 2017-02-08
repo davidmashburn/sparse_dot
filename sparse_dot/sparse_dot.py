@@ -1,10 +1,12 @@
 '''The main script'''
+from __future__ import print_function
+from __future__ import absolute_import
 
 # To update with any Cython changes, just run:
 # python setup.py build_ext --inplace
 
 import numpy as np
-import cy_sparse_dot
+from . import cy_sparse_dot
 
 def to_saf(arr1d):
     arr1d = np.asanyarray(arr1d)
@@ -20,7 +22,7 @@ def validate_saf(saf, verbose=True):
        AND the data types of the arrays are uint32 and float32 respectively'''
     def vpr(x):
         if verbose:
-            print x
+            print(x)
     if not ('locs' in saf and 'array' in saf):
         vpr('missing members')
         return False
@@ -71,4 +73,4 @@ def cos_distance_using_sparse(arr):
 if __name__ == '__main__':
     r = dot_full_using_sparse([[1, 0, 0, 1, 3, 1],
                                [2, 0, 0, 0, 1, 5]])
-    print r
+    print(r)

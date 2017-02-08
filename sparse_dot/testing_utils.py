@@ -1,4 +1,6 @@
 '''Utility functions for use in testing'''
+from __future__ import print_function
+from __future__ import absolute_import
 
 import time
 from itertools import izip
@@ -85,18 +87,18 @@ def is_naive_same(test_set, print_time=False, verbose=False):
     t = time.time()
     sd = sparse_dot.dot_full_using_sparse(test_set)
     if print_time:
-        print 'sparse_dot speed:', time.time()-t
+        print('sparse_dot speed:', time.time()-t)
     sd = np.sort(sd)
     
     t = time.time()
     d = naive_dot(test_set) # No need to sort, save the time
     if print_time:
-        print 'naive speed:', time.time()-t
+        print('naive speed:', time.time()-t)
     
     if verbose:
-        print 'test_set', test_set
-        print 'sparse_dot result', sd
-        print 'naive result', d
+        print('test_set', test_set)
+        print('sparse_dot result', sd)
+        print('naive result', d)
     
     return (([(i,j) for i,j,k in d] == [(i,j) for i,j,k in sd]) and
             np.all(np.isclose([k for i,j,k in d], sd['sparse_result'])))
@@ -115,13 +117,13 @@ def run_timing_test(*args, **kwds):
     test_set = generate_test_saf_list(*args, **kwds)
     generate_time = time.time()-t
     if verbose:
-        print test_set
+        print(test_set)
     
     t = time.time()
     sd = sparse_dot.sparse_dot_full(test_set)
     process_time = time.time()-t
     if verbose:
-        print sd
+        print(sd)
     
     # Printing/returning section:
     return generate_time, process_time
@@ -140,13 +142,13 @@ def run_timing_test_v1(*args, **kwds):
     test_set = generate_test_set(*args, **kwds)
     generate_time = time.time()-t
     if verbose:
-        print test_set
+        print(test_set)
     
     t = time.time()
     sd = sparse_dot.dot_full_using_sparse(test_set)
     process_time = time.time()-t
     if verbose:
-        print sd
+        print(sd)
     
     # Printing/returning section:
     return generate_time, process_time

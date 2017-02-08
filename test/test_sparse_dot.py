@@ -1,4 +1,5 @@
 '''Test it all'''
+from __future__ import print_function
 
 import numpy as np
 import sparse_dot
@@ -97,8 +98,8 @@ if __name__ == '__main__':
     test_cos_distance_using_scipy_1()
     test_cos_distance_using_scipy_2()
 
-    print run_timing_test_v1_1000_1000_0p1()
-    print run_timing_test_1000_1000_100000()
+    print(run_timing_test_v1_1000_1000_0p1())
+    print(run_timing_test_1000_1000_100000())
     
     # These are all run in the benchmarks instead:
     #print run_timing_test_v1_10000_10000_0p1() # ~100s
