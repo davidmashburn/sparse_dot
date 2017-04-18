@@ -1,6 +1,7 @@
 '''The main script'''
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import map
 
 # To update with any Cython changes, just run:
 # python setup.py build_ext --inplace
@@ -15,7 +16,7 @@ def to_saf(arr1d):
             'array': arr1d[locs].astype(np.float32)}
 
 def to_saf_list(arr2d):
-    return map(to_saf, arr2d)
+    return list(map(to_saf, arr2d))
 
 def validate_saf(saf, verbose=True):
     '''True if the locs (indices) in a saf are ordered

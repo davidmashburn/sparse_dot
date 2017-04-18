@@ -1,9 +1,9 @@
 '''Utility functions for use in testing'''
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 
 import time
-from itertools import izip
 import numpy as np
 import sparse_dot
 import np_utils
