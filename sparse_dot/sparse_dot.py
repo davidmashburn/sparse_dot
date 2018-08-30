@@ -82,6 +82,21 @@ def cos_similarity_using_sparse(arr):
 def cos_distance_using_sparse(arr):
     return sparse_cos_distance(to_saf_list(arr))
 
+def coo_cosine_similarity(input_coo_matrix):
+    sq = lambda x: x * x.T
+    output_csr_matrix = input_coo_matrix.tocsr()
+    sqrt_sum_square_rows = np.array(np.sqrt(sq(output_csr_matrix).sum(axis=1)))[:, 0]
+    output_csr_matrix.data /= sqrt_sum_square_rows[input_coo_matrix.row]
+    return sq(output_csr_matrix)
+
+def csr_cosine_similarity(input_csr_matrix):
+    similarity = input_csr_matrix * input_csr_matrix.T
+    square_mag = similarity.diagonal()
+    inv_square_mag = 1 / square_mag
+    inv_square_mag[np.isinf(inv_square_mag)] = 0
+    inv_mag = np.sqrt(inv_square_mag)
+    return similarity.multiply(inv_mag).T.multiply(inv_mag)
+
 if __name__ == '__main__':
     r = dot_full_using_sparse([[1, 0, 0, 1, 3, 1],
                                [2, 0, 0, 0, 1, 5]])

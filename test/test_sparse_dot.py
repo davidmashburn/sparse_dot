@@ -10,7 +10,9 @@ from sparse_dot.testing_utils import (
     dot_equal_basic,
     is_naive_same,
     run_timing_test_v1,
-    run_timing_test
+    run_timing_test,
+    run_timing_test_vs_csr,
+    run_timing_test_vs_csr_and_coo,
 )
 
 SAF_GOOD = {'locs': np.array([0, 1, 4], dtype=np.uint32),
@@ -67,6 +69,20 @@ def test_sparse_dot_10_100_1():
 def test_sparse_dot_100_100_0p1():
     assert is_naive_same(generate_test_set(100, 100, 0.1))
 
+def test_cos_similarity_using_scipy_1():
+    '''Test the cos similarity calculation against scipy
+       (must be installed for this test)'''
+    import scipy.sparse
+    n_rows = 100
+    rows = generate_test_set(n_rows, 1000, 1)
+    csr = scipy.sparse.csr_matrix(rows)
+    res = sparse_dot.cos_similarity_using_sparse(rows)
+    coo_res = scipy.sparse.coo_matrix((res['sparse_result'], (res['i'], res['j'])), shape=(n_rows, n_rows))
+    cos_sim = sparse_dot.csr_cosine_similarity(csr)
+    
+    assert np.all(np.isclose(np.triu(coo_res.toarray(), 1),
+                  np.triu(cos_sim.toarray()), 1))
+
 def test_cos_distance_using_scipy_1():
     '''Test the cos distance calculation against scipy
        (must be installed for this test)'''
@@ -101,8 +117,16 @@ def run_timing_test_1000_20000_10000000():
 def run_timing_test_5000_20000_10000():
     return run_timing_test(5000, 200000, 10000)
 
+def run_timing_test_vs_csr_1000_1000_100000():
+    return run_timing_test_vs_csr(1000, 1000, 100000)
+
+def run_timing_test_vs_csr_and_coo_1000_1000_100000():
+    return run_timing_test_vs_csr_and_coo(1000, 1000, 100000)
+
+
 if __name__ == '__main__':
     test_saf_list_to_csr_matrix()
+    test_cos_similarity_using_scipy_1()
     test_validate_saf_1()
     test_validate_saf_2()
     test_sparse_dot_full_validation_1()
@@ -121,6 +145,8 @@ if __name__ == '__main__':
 
     print(run_timing_test_v1_1000_1000_0p1())
     print(run_timing_test_1000_1000_100000())
+    print(run_timing_test_vs_csr_1000_1000_100000())
+    print(run_timing_test_vs_csr_and_coo_1000_1000_100000())
     
     # These are all run in the benchmarks instead:
     #print run_timing_test_v1_10000_10000_0p1() # ~100s

@@ -152,3 +152,86 @@ def run_timing_test_v1(*args, **kwds):
     
     # Printing/returning section:
     return generate_time, process_time
+
+def run_timing_test_vs_csr(num_rows, num_cols, *args, **kwds):
+    '''Generate a test set and run sparse_dot_full
+       Time both steps and print the output
+       kwds:
+           verbose=True -> print the test set and the result from sparse_dot
+       
+       all other args and kwds are passed to generate_test_set
+       '''
+    verbose = kwds.pop('verbose', False)
+    
+    t = time.time()
+    test_set = generate_test_saf_list(num_rows, num_cols, *args, **kwds)
+    csr = sparse_dot.saf_list_to_csr_matrix(test_set, shape=(num_rows, num_cols))
+    generate_time = time.time()-t
+    if verbose:
+        print(test_set)
+    
+    t = time.time()
+    sd = sparse_dot.sparse_dot_full(test_set)
+    process_time = time.time()-t
+    if verbose:
+        print(sd)
+    
+    t = time.time()
+    sd_csr = csr * csr.T
+    process_time_csr = time.time()-t
+    if verbose:
+        print(sd)
+    
+    # Printing/returning section:
+    return generate_time, process_time, process_time_csr
+
+def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
+    '''Generate a test set and run sparse_dot_full
+       Time both steps and print the output
+       kwds:
+           verbose=True -> print the test set and the result from sparse_dot
+       
+       all other args and kwds are passed to generate_test_set
+       '''
+    verbose = kwds.pop('verbose', False)
+    
+    t = time.time()
+    test_set = generate_test_saf_list(num_rows, num_cols, *args, **kwds)
+    csr = sparse_dot.saf_list_to_csr_matrix(test_set, shape=(num_rows, num_cols))
+    coo = csr.tocoo()
+    generate_time = time.time()-t
+    if verbose:
+        print(test_set)
+    
+    t = time.time()
+    sd = sparse_dot.sparse_dot_full(test_set)
+    process_time = time.time()-t
+    if verbose:
+        print(sd)
+    
+    t = time.time()
+    sd_csr = csr * csr.T
+    process_time_csr = time.time()-t
+    if verbose:
+        print(sd)
+    
+    t = time.time()
+    sd_csr_sim = sparse_dot.csr_cosine_similarity(csr)
+    process_time_csr_sim = time.time()-t
+    if verbose:
+        print(sd)
+    
+    
+    t = time.time()
+    sd_coo_sim = sparse_dot.coo_cosine_similarity(coo)
+    process_time_coo_sim = time.time()-t
+    if verbose:
+        print(sd)
+    
+    # Printing/returning section:
+    return {'generate_time': generate_time,
+            'process_time': process_time,
+            'process_time_csr': process_time_csr,
+            'process_time_csr_sim': process_time_csr_sim,
+            'process_time_coo_sim': process_time_coo_sim,
+           }

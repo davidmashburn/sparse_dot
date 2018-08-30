@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+ulimit -Sv 8000000 # 8 GB limit
+/usr/bin/time -v timeout 2000s sh lim_run_core
+ulimit -Sv unlimited
