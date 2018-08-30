@@ -9,6 +9,11 @@ from builtins import map
 import numpy as np
 from . import cy_sparse_dot
 
+try:
+    import scipy.sparse
+except ImportError:
+    print('Scipy not found, scipy.sparse functionality will not be available')
+
 def to_saf(arr1d):
     arr1d = np.asanyarray(arr1d)
     locs = np.nonzero(arr1d)
@@ -17,6 +22,12 @@ def to_saf(arr1d):
 
 def to_saf_list(arr2d):
     return list(map(to_saf, arr2d))
+
+def saf_list_to_csr_matrix(saf_list, shape):
+    data = np.concatenate([saf['array'] for saf in saf_list])
+    indices = np.concatenate([saf['locs'] for saf in saf_list])
+    indptr = np.cumsum([0] + [len(saf['array']) for saf in saf_list])
+    return scipy.sparse.csr_matrix((data, indices, indptr), shape=shape)
 
 def validate_saf(saf, verbose=True):
     '''True if the locs (indices) in a saf are ordered

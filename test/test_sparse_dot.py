@@ -3,9 +3,15 @@ from __future__ import print_function
 
 import numpy as np
 import sparse_dot
-from sparse_dot.testing_utils import (generate_test_set,
-    sparse_dot_full_validate_pass, dot_equal_basic, is_naive_same,
-    run_timing_test_v1, run_timing_test)
+from sparse_dot.testing_utils import (
+    generate_test_set,
+    generate_test_saf_list,
+    sparse_dot_full_validate_pass,
+    dot_equal_basic,
+    is_naive_same,
+    run_timing_test_v1,
+    run_timing_test
+)
 
 SAF_GOOD = {'locs': np.array([0, 1, 4], dtype=np.uint32),
             'array': np.array([4.2, 9.0, 5.1], dtype=np.float32)}
@@ -13,6 +19,20 @@ SAF_BAD_1 = {'locs': np.array([4, 0, 1], dtype=np.uint32),
              'array': np.array([4.2, 9.0, 5.1], dtype=np.float32)}
 SAF_BAD_2 = {'locs': np.array([0, 1, 4], dtype=np.uint32),
              'array': [4.2, 9.0, 5.1]}
+
+def test_saf_list_to_csr_matrix():
+    num_rows, num_cols = 100, 100
+    x = generate_test_saf_list(num_rows, num_cols)
+    csr = sparse_dot.saf_list_to_csr_matrix(x, shape=(num_rows, num_cols))
+
+    def all_close(x, y):
+        return np.all(np.isclose(x, y))
+
+    assert all_close(np.array(csr.sum(axis=-1))[:, 0],
+                     [i['array'].sum() for i in x])
+    assert all(all_close(csr[i].indices, x[i]['locs'])
+                         for i in range(len(x)))
+
 
 def test_validate_saf_1():
     assert sparse_dot.validate_saf(sparse_dot.to_saf([0,2,0,1,3,4,2,0,0,1,0]))
@@ -82,6 +102,7 @@ def run_timing_test_5000_20000_10000():
     return run_timing_test(5000, 200000, 10000)
 
 if __name__ == '__main__':
+    test_saf_list_to_csr_matrix()
     test_validate_saf_1()
     test_validate_saf_2()
     test_sparse_dot_full_validation_1()
