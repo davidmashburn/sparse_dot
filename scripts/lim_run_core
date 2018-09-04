@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-python -m memory_profiler ../test/benchmarks_v2.py
+python3 -m memory_profiler ../test/benchmarks_v3.py

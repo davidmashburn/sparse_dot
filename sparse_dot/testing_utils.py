@@ -213,20 +213,20 @@ def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
     sd_csr = csr * csr.T
     process_time_csr = time.time()-t
     if verbose:
-        print(sd)
+        print(sd_csr)
     
     t = time.time()
     sd_csr_sim = sparse_dot.csr_cosine_similarity(csr)
     process_time_csr_sim = time.time()-t
     if verbose:
-        print(sd)
+        print(sd_csr_sim)
     
     
     t = time.time()
     sd_coo_sim = sparse_dot.coo_cosine_similarity(coo)
     process_time_coo_sim = time.time()-t
     if verbose:
-        print(sd)
+        print(sd_coo_sim)
     
     # Printing/returning section:
     return {'generate_time': generate_time,
@@ -235,3 +235,34 @@ def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
             'process_time_csr_sim': process_time_csr_sim,
             'process_time_coo_sim': process_time_coo_sim,
            }
+
+def run_timing_test_cython_csr_or_coo(algo, num_rows, num_cols, num_entries, *args, **kwds):
+    '''Generate a test set and run sparse_dot_full
+       Time both steps and print the output
+       kwds:
+           verbose=True -> print the test set and the result from sparse_dot
+       
+       all other args and kwds are passed to generate_test_set
+       '''
+    assert algo in ['cython', 'csr', 'coo']
+    verbose = kwds.pop('verbose', False)
+    
+    t = time.time()
+    test_set = generate_test_saf_list(num_rows, num_cols, num_entries, *args, **kwds)
+    csr = sparse_dot.saf_list_to_csr_matrix(test_set, shape=(num_rows, num_cols))
+    coo = csr.tocoo()
+    generate_time = time.time()-t
+    if verbose:
+        print(test_set)
+    
+    t = time.time()
+    res = (sparse_dot.sparse_dot_full(test_set) if algo == 'cython' else
+           sparse_dot.csr_cosine_similarity(csr) if algo == 'csr' else
+           sparse_dot.coo_cosine_similarity(coo) if algo == 'coo' else
+           None)
+    process_time = time.time()-t
+    if verbose:
+        print(res)
+    
+    # Printing/returning section:
+    return algo, num_rows, num_cols, generate_time, process_time
