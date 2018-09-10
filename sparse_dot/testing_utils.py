@@ -258,11 +258,11 @@ def run_timing_test_cython_csr_or_coo(algo, num_rows, num_cols, num_entries, *ar
     t = time.time()
     res = (sparse_dot.sparse_dot_full(test_set) if algo == 'cython' else
            sparse_dot.csr_cosine_similarity(csr) if algo == 'csr' else
-           sparse_dot.coo_cosine_similarity(coo) if algo == 'coo' else
-           None)
+           sparse_dot.coo_cosine_similarity(coo))  # if algo == 'coo' else
+
     process_time = time.time()-t
     if verbose:
         print(res)
     
     # Printing/returning section:
-    return algo, num_rows, num_cols, generate_time, process_time
+    return algo, num_rows, num_cols, num_entries, generate_time, process_time
