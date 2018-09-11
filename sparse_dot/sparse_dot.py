@@ -83,11 +83,11 @@ def cos_distance_using_sparse(arr):
     return sparse_cos_distance(to_saf_list(arr))
 
 def coo_cosine_similarity(input_coo_matrix):
-    sq = lambda x: x * x.T
     output_csr_matrix = input_coo_matrix.tocsr()
-    sqrt_sum_square_rows = np.array(np.sqrt(sq(output_csr_matrix).sum(axis=1)))[:, 0]
+    squared = output_csr_matrix.multiply(output_csr_matrix)
+    sqrt_sum_square_rows = np.array(np.sqrt(squared.sum(axis=1)))[:, 0]
     output_csr_matrix.data /= sqrt_sum_square_rows[input_coo_matrix.row]
-    return sq(output_csr_matrix)
+    return output_csr_matrix.dot(output_csr_matrix.T)
 
 def csr_cosine_similarity(input_csr_matrix):
     similarity = input_csr_matrix * input_csr_matrix.T

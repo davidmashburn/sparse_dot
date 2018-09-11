@@ -76,12 +76,16 @@ def test_cos_similarity_using_scipy_1():
     n_rows = 100
     rows = generate_test_set(n_rows, 1000, 1)
     csr = scipy.sparse.csr_matrix(rows)
+    coo = scipy.sparse.coo_matrix(rows)
     res = sparse_dot.cos_similarity_using_sparse(rows)
-    coo_res = scipy.sparse.coo_matrix((res['sparse_result'], (res['i'], res['j'])), shape=(n_rows, n_rows))
-    cos_sim = sparse_dot.csr_cosine_similarity(csr)
+    res_coo = scipy.sparse.coo_matrix((res['sparse_result'], (res['i'], res['j'])), shape=(n_rows, n_rows))
+    csr_cos_sim = sparse_dot.csr_cosine_similarity(csr)
+    coo_cos_sim = sparse_dot.coo_cosine_similarity(coo)
     
-    assert np.all(np.isclose(np.triu(coo_res.toarray(), 1),
-                  np.triu(cos_sim.toarray()), 1))
+    assert np.all(np.isclose(np.triu(res_coo.toarray(), 1),
+                             np.triu(csr_cos_sim.toarray()), 1))
+    assert np.all(np.isclose(np.triu(res_coo.toarray(), 1),
+                             np.triu(coo_cos_sim.toarray()), 1))
 
 def test_cos_distance_using_scipy_1():
     '''Test the cos distance calculation against scipy
