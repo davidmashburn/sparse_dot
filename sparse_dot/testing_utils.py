@@ -185,7 +185,7 @@ def run_timing_test_vs_csr(num_rows, num_cols, *args, **kwds):
     # Printing/returning section:
     return generate_time, process_time, process_time_csr
 
-def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
+def run_timing_test_vs_sparse(num_rows, num_cols, *args, **kwds):
     '''Generate a test set and run sparse_dot_full
        Time both steps and print the output
        kwds:
@@ -198,7 +198,6 @@ def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
     t = time.time()
     test_set = generate_test_saf_list(num_rows, num_cols, *args, **kwds)
     csr = sparse_dot.saf_list_to_csr_matrix(test_set, shape=(num_rows, num_cols))
-    coo = csr.tocoo()
     generate_time = time.time()-t
     if verbose:
         print(test_set)
@@ -211,32 +210,32 @@ def run_timing_test_vs_csr_and_coo(num_rows, num_cols, *args, **kwds):
     
     t = time.time()
     sd_csr = csr * csr.T
-    process_time_csr = time.time()-t
+    process_time_csr_dot = time.time()-t
     if verbose:
         print(sd_csr)
     
     t = time.time()
-    sd_csr_sim = sparse_dot.csr_cosine_similarity(csr)
-    process_time_csr_sim = time.time()-t
+    sd_sparse_sim = sparse_dot.sparse_cosine_similarity(csr)
+    process_time_sparse_sim = time.time()-t
     if verbose:
-        print(sd_csr_sim)
+        print(sd_sparse_sim)
     
     
     t = time.time()
-    sd_coo_sim = sparse_dot.coo_cosine_similarity(coo)
-    process_time_coo_sim = time.time()-t
+    sd_sparse_sim_b = sparse_dot.sparse_cosine_similarity_b(csr)
+    process_time_sparse_sim_b = time.time()-t
     if verbose:
-        print(sd_coo_sim)
+        print(sd_sparse_sim_b)
     
     # Printing/returning section:
     return {'generate_time': generate_time,
             'process_time': process_time,
-            'process_time_csr': process_time_csr,
-            'process_time_csr_sim': process_time_csr_sim,
-            'process_time_coo_sim': process_time_coo_sim,
+            'process_time_csr_dot': process_time_csr_dot,
+            'process_time_sparse_sim': process_time_sparse_sim,
+            'process_time_sparse_sim_b': process_time_sparse_sim_b,
            }
 
-def run_timing_test_cython_csr_or_coo(algo, num_rows, num_cols, num_entries, *args, **kwds):
+def run_timing_test_cython_sparse_or_sparse_b(algo, num_rows, num_cols, num_entries, *args, **kwds):
     '''Generate a test set and run sparse_dot_full
        Time both steps and print the output
        kwds:
@@ -244,21 +243,20 @@ def run_timing_test_cython_csr_or_coo(algo, num_rows, num_cols, num_entries, *ar
        
        all other args and kwds are passed to generate_test_set
        '''
-    assert algo in ['cython', 'csr', 'coo']
+    assert algo in ['cython', 'sparse', 'sparse_b']
     verbose = kwds.pop('verbose', False)
     
     t = time.time()
     test_set = generate_test_saf_list(num_rows, num_cols, num_entries, *args, **kwds)
     csr = sparse_dot.saf_list_to_csr_matrix(test_set, shape=(num_rows, num_cols))
-    coo = csr.tocoo()
     generate_time = time.time()-t
     if verbose:
         print(test_set)
     
     t = time.time()
     res = (sparse_dot.sparse_dot_full(test_set) if algo == 'cython' else
-           sparse_dot.csr_cosine_similarity(csr) if algo == 'csr' else
-           sparse_dot.coo_cosine_similarity(coo))  # if algo == 'coo' else
+           sparse_dot.sparse_cosine_similarity(csr) if algo == 'sparse' else
+           sparse_dot.sparse_cosine_similarity_b(csr))  # if algo == 'sparse_b'
 
     process_time = time.time()-t
     if verbose:

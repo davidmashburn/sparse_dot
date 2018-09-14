@@ -11,6 +11,7 @@ from . import cy_sparse_dot
 
 try:
     import scipy.sparse
+    from scipy.sparse import csr_matrix
 except ImportError:
     print('Scipy not found, scipy.sparse functionality will not be available')
 
@@ -82,14 +83,18 @@ def cos_similarity_using_sparse(arr):
 def cos_distance_using_sparse(arr):
     return sparse_cos_distance(to_saf_list(arr))
 
-def coo_cosine_similarity(input_coo_matrix):
-    output_csr_matrix = input_coo_matrix.tocsr()
-    squared = output_csr_matrix.multiply(output_csr_matrix)
-    sqrt_sum_square_rows = np.array(np.sqrt(squared.sum(axis=1)))[:, 0]
-    output_csr_matrix.data /= sqrt_sum_square_rows[input_coo_matrix.row]
-    return output_csr_matrix.dot(output_csr_matrix.T)
+def sparse_cosine_similarity(sparse_matrix):
+    out = (sparse_matrix.copy() if type(sparse_matrix) is csr_matrix else
+           sparse_matrix.tocsr())
+    squared = out.multiply(out)
+    sqrt_sum_squared_rows = np.array(np.sqrt(squared.sum(axis=1)))[:, 0]
+    row_indices, col_indices = out.nonzero()
+    out.data /= sqrt_sum_squared_rows[row_indices]
+    return out.dot(out.T)
 
-def csr_cosine_similarity(input_csr_matrix):
+
+def sparse_cosine_similarity_b(sparse_matrix):
+    input_csr_matrix = sparse_matrix.tocsr()
     similarity = input_csr_matrix * input_csr_matrix.T
     square_mag = similarity.diagonal()
     inv_square_mag = 1 / square_mag

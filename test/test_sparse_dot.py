@@ -12,7 +12,7 @@ from sparse_dot.testing_utils import (
     run_timing_test_v1,
     run_timing_test,
     run_timing_test_vs_csr,
-    run_timing_test_vs_csr_and_coo,
+    run_timing_test_vs_sparse,
 )
 
 SAF_GOOD = {'locs': np.array([0, 1, 4], dtype=np.uint32),
@@ -76,16 +76,16 @@ def test_cos_similarity_using_scipy_1():
     n_rows = 100
     rows = generate_test_set(n_rows, 1000, 1)
     csr = scipy.sparse.csr_matrix(rows)
-    coo = scipy.sparse.coo_matrix(rows)
     res = sparse_dot.cos_similarity_using_sparse(rows)
     res_coo = scipy.sparse.coo_matrix((res['sparse_result'], (res['i'], res['j'])), shape=(n_rows, n_rows))
-    csr_cos_sim = sparse_dot.csr_cosine_similarity(csr)
-    coo_cos_sim = sparse_dot.coo_cosine_similarity(coo)
+    sparse_cos_sim = sparse_dot.sparse_cosine_similarity(csr)
+    sparse_cos_sim_b = sparse_dot.sparse_cosine_similarity_b(csr)
     
     assert np.all(np.isclose(np.triu(res_coo.toarray(), 1),
-                             np.triu(csr_cos_sim.toarray()), 1))
+                             np.triu(sparse_cos_sim.toarray()), 1))
     assert np.all(np.isclose(np.triu(res_coo.toarray(), 1),
-                             np.triu(coo_cos_sim.toarray()), 1))
+                             np.triu(sparse_cos_sim_b.toarray()), 1))
+
 
 def test_cos_distance_using_scipy_1():
     '''Test the cos distance calculation against scipy
@@ -125,7 +125,7 @@ def run_timing_test_vs_csr_1000_1000_100000():
     return run_timing_test_vs_csr(1000, 1000, 100000)
 
 def run_timing_test_vs_csr_and_coo_1000_1000_100000():
-    return run_timing_test_vs_csr_and_coo(1000, 1000, 100000)
+    return run_timing_test_vs_sparse(1000, 1000, 100000)
 
 
 if __name__ == '__main__':

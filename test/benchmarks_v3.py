@@ -3,7 +3,7 @@
 import os
 import sparse_dot
 
-cmd = '/usr/bin/time --format="time: %E peak_memory: %MkB" python3 -c "import sparse_dot.testing_utils as t; print(t.run_timing_test_cython_csr_or_coo({}, {}, {}, {}))"'
+cmd = '/usr/bin/time --format="time: %E peak_memory: %MkB" python3 -c "import sparse_dot.testing_utils as t; print(t.run_timing_test_cython_sparse_or_sparse_b({}, {}, {}, {}))"'
 
 timing_test_params = [(1000, 1000, 100000),
                       (2000, 2000, 100000),
@@ -16,5 +16,5 @@ timing_test_params = [(1000, 1000, 100000),
                      ]
 
 for num_rows, num_cols, num_entries in timing_test_params:
-    for algo in ['cython', 'csr', 'coo']:
+    for algo in ['cython', 'sparse', 'sparse_b']:
         os.system(cmd.format("'{}'".format(algo), num_rows, num_cols, num_entries))
